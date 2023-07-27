@@ -1,3 +1,16 @@
 {
-    "dart.flutterSdkPath": "/Users/yoshidashuuhei/Documents/shu-file/weteam-prj/support-app/.fvm/flutter_sdk"
+    "svg.preview.background": "white",
+    "json.schemaDownload.enable": true,
+    "dart.flutterSdkPath": ".fvm/flutter_sdk",
+    // Remove .fvm files from search
+    "search.exclude": {
+        "**/.fvm": true,
+        "**/.dart_tool": true,
+        "**/*.freezed.dart": true,
+        "**/*.g.dart": true
+    },
+    // Remove from file watching
+    "files.watcherExclude": {
+        "**/.fvm": true
+    }
 }
