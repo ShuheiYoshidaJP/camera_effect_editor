@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:camera/camera.dart';
+import 'package:camera_effect_editor/preview_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -101,6 +102,7 @@ class CameraWidgetState extends State<CameraWidget>
             child: Row(
               children: <Widget>[
                 _cameraTogglesRowWidget(),
+                const Spacer(),
                 _thumbnailWidget(),
               ],
             ),
@@ -164,30 +166,31 @@ class CameraWidgetState extends State<CameraWidget>
   Widget _thumbnailWidget() {
     final VideoPlayerController? localVideoController = videoController;
 
-    return Expanded(
-      child: Align(
-        alignment: Alignment.centerRight,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            if (localVideoController != null)
-              SizedBox(
-                width: 64.0,
-                height: 64.0,
-                child: Container(
-                  decoration:
-                      BoxDecoration(border: Border.all(color: Colors.pink)),
-                  child: Center(
-                    child: AspectRatio(
-                        aspectRatio: localVideoController.value.aspectRatio,
-                        child: VideoPlayer(localVideoController)),
-                  ),
+    return localVideoController != null && videoFile != null
+        ? GestureDetector(
+            onTap: () => _previewVideo(videoFile!.path),
+            child: SizedBox(
+              width: 64.0,
+              height: 64.0,
+              child: Container(
+                decoration:
+                    BoxDecoration(border: Border.all(color: Colors.pink)),
+                child: Center(
+                  child: AspectRatio(
+                      aspectRatio: localVideoController.value.aspectRatio,
+                      child: VideoPlayer(localVideoController)),
                 ),
-              )
-            else
-              Container()
-          ],
-        ),
+              ),
+            ),
+          )
+        : Container();
+  }
+
+  void _previewVideo(String videoPath) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PreviewScreen(videoPath: videoPath),
       ),
     );
   }
