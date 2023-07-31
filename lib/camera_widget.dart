@@ -38,7 +38,6 @@ void logError(String code, String? message) {
 class CameraWidgetState extends State<CameraWidget>
     with WidgetsBindingObserver, TickerProviderStateMixin {
   CameraController? controller;
-  XFile? imageFile;
   XFile? videoFile;
   VideoPlayerController? videoController;
   VoidCallback? videoPlayerListener;
@@ -171,32 +170,22 @@ class CameraWidgetState extends State<CameraWidget>
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            if (localVideoController == null && imageFile == null)
-              Container()
-            else
+            if (localVideoController != null)
               SizedBox(
                 width: 64.0,
                 height: 64.0,
-                child: (localVideoController == null)
-                    ? (
-                        // The captured image on the web contains a network-accessible URL
-                        // pointing to a location within the browser. It may be displayed
-                        // either with Image.network or Image.memory after loading the image
-                        // bytes to memory.
-                        kIsWeb
-                            ? Image.network(imageFile!.path)
-                            : Image.file(File(imageFile!.path)))
-                    : Container(
-                        decoration: BoxDecoration(
-                            border: Border.all(color: Colors.pink)),
-                        child: Center(
-                          child: AspectRatio(
-                              aspectRatio:
-                                  localVideoController.value.aspectRatio,
-                              child: VideoPlayer(localVideoController)),
-                        ),
-                      ),
-              ),
+                child: Container(
+                  decoration:
+                      BoxDecoration(border: Border.all(color: Colors.pink)),
+                  child: Center(
+                    child: AspectRatio(
+                        aspectRatio: localVideoController.value.aspectRatio,
+                        child: VideoPlayer(localVideoController)),
+                  ),
+                ),
+              )
+            else
+              Container()
           ],
         ),
       ),
@@ -533,7 +522,6 @@ class CameraWidgetState extends State<CameraWidget>
     await videoController?.dispose();
     if (mounted) {
       setState(() {
-        imageFile = null;
         videoController = vController;
       });
     }
