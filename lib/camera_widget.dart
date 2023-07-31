@@ -50,6 +50,21 @@ class CameraWidgetState extends State<CameraWidget>
   // Counting pointers (number of user fingers on screen)
   int _pointers = 0;
 
+  // text position
+  double dx = 0.0;
+  double dy = 0.0;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // 画面の中心合わせる
+    setState(() {
+      dx = MediaQuery.of(context).size.width / 2;
+      dy = MediaQuery.of(context).size.height / 2;
+    });
+
+  }
+
   // #docregion AppLifecycle
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -129,18 +144,45 @@ class CameraWidgetState extends State<CameraWidget>
       return Listener(
         onPointerDown: (_) => _pointers++,
         onPointerUp: (_) => _pointers--,
-        child: CameraPreview(
-          controller!,
-          child: LayoutBuilder(
-              builder: (BuildContext context, BoxConstraints constraints) {
-            return GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onScaleStart: _handleScaleStart,
-              onScaleUpdate: _handleScaleUpdate,
-              onTapDown: (TapDownDetails details) =>
-                  onViewFinderTap(details, constraints),
-            );
-          }),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            CameraPreview(
+              controller!,
+              child: LayoutBuilder(
+                  builder: (BuildContext context, BoxConstraints constraints) {
+                return GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onScaleStart: _handleScaleStart,
+                  onScaleUpdate: _handleScaleUpdate,
+                  onTapDown: (TapDownDetails details) =>
+                      onViewFinderTap(details, constraints),
+                );
+              }),
+            ),
+            Positioned(
+              left: dx,
+              top: dy,
+              child: Draggable(
+                onDragEnd: (details) {
+                  setState(() {
+                    dx = details.offset.dx;
+                    double appBarHeight = AppBar().preferredSize.height;
+                    double statusBarHeight = MediaQuery.of(context).padding.top;
+                    dy = details.offset.dy - appBarHeight - statusBarHeight;
+                  });
+                },
+                feedback: const Text(
+                  'Text',
+                  style: TextStyle(fontSize: 36),
+                ),
+                child: const Text(
+                  'Text',
+                  style: TextStyle(fontSize: 36),
+                ),
+              ),
+            )
+          ],
         ),
       );
     }
