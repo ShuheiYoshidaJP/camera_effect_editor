@@ -55,6 +55,9 @@ class CameraWidgetState extends State<CameraWidget>
   double dy = 0.0;
   bool captionIsVisible = false;
 
+  // Color filter
+  bool enableColorFilter = false;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -144,24 +147,30 @@ class CameraWidgetState extends State<CameraWidget>
       return Listener(
         onPointerDown: (_) => _pointers++,
         onPointerUp: (_) => _pointers--,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            CameraPreview(
-              controller!,
-              child: LayoutBuilder(
-                  builder: (BuildContext context, BoxConstraints constraints) {
-                return GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onScaleStart: _handleScaleStart,
-                  onScaleUpdate: _handleScaleUpdate,
-                  onTapDown: (TapDownDetails details) =>
-                      onViewFinderTap(details, constraints),
-                );
-              }),
-            ),
-            if (captionIsVisible) _captionWidget(),
-          ],
+        child: ColorFiltered(
+          colorFilter: ColorFilter.mode(
+            enableColorFilter ? Colors.red : Colors.transparent,
+            BlendMode.color,
+          ),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              CameraPreview(
+                controller!,
+                child: LayoutBuilder(builder:
+                    (BuildContext context, BoxConstraints constraints) {
+                  return GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onScaleStart: _handleScaleStart,
+                    onScaleUpdate: _handleScaleUpdate,
+                    onTapDown: (TapDownDetails details) =>
+                        onViewFinderTap(details, constraints),
+                  );
+                }),
+              ),
+              if (captionIsVisible) _captionWidget(),
+            ],
+          ),
         ),
       );
     }
@@ -328,6 +337,24 @@ class CameraWidgetState extends State<CameraWidget>
             onPressed: () {
               setState(() {
                 captionIsVisible = !captionIsVisible;
+              });
+            },
+          ),
+        ),
+      );
+      toggles.add(
+        Container(
+          width: 90.0,
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: enableColorFilter ? Colors.pink : Colors.transparent,
+            ),
+          ),
+          child: IconButton(
+            icon: const Icon(Icons.color_lens),
+            onPressed: () {
+              setState(() {
+                enableColorFilter = !enableColorFilter;
               });
             },
           ),
