@@ -53,6 +53,7 @@ class CameraWidgetState extends State<CameraWidget>
   // text position
   double dx = 0.0;
   double dy = 0.0;
+  bool captionIsVisible = false;
 
   @override
   void didChangeDependencies() {
@@ -62,7 +63,6 @@ class CameraWidgetState extends State<CameraWidget>
       dx = MediaQuery.of(context).size.width / 2;
       dy = MediaQuery.of(context).size.height / 2;
     });
-
   }
 
   // #docregion AppLifecycle
@@ -160,32 +160,36 @@ class CameraWidgetState extends State<CameraWidget>
                 );
               }),
             ),
-            Positioned(
-              left: dx,
-              top: dy,
-              child: Draggable(
-                onDragEnd: (details) {
-                  setState(() {
-                    dx = details.offset.dx;
-                    double appBarHeight = AppBar().preferredSize.height;
-                    double statusBarHeight = MediaQuery.of(context).padding.top;
-                    dy = details.offset.dy - appBarHeight - statusBarHeight;
-                  });
-                },
-                feedback: const Text(
-                  'Text',
-                  style: TextStyle(fontSize: 36),
-                ),
-                child: const Text(
-                  'Text',
-                  style: TextStyle(fontSize: 36),
-                ),
-              ),
-            )
+            if (captionIsVisible) _captionWidget(),
           ],
         ),
       );
     }
+  }
+
+  Widget _captionWidget() {
+    return Positioned(
+      left: dx,
+      top: dy,
+      child: Draggable(
+        onDragEnd: (details) {
+          setState(() {
+            dx = details.offset.dx;
+            double appBarHeight = AppBar().preferredSize.height;
+            double statusBarHeight = MediaQuery.of(context).padding.top;
+            dy = details.offset.dy - appBarHeight - statusBarHeight;
+          });
+        },
+        feedback: const Text(
+          'Text',
+          style: TextStyle(fontSize: 36),
+        ),
+        child: const Text(
+          'Text',
+          style: TextStyle(fontSize: 36),
+        ),
+      ),
+    );
   }
 
   void _handleScaleStart(ScaleStartDetails details) {
@@ -311,6 +315,24 @@ class CameraWidgetState extends State<CameraWidget>
           ),
         );
       }
+      toggles.add(
+        Container(
+          width: 90.0,
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: captionIsVisible ? Colors.pink : Colors.transparent,
+            ),
+          ),
+          child: IconButton(
+            icon: const Icon(Icons.text_fields),
+            onPressed: () {
+              setState(() {
+                captionIsVisible = !captionIsVisible;
+              });
+            },
+          ),
+        ),
+      );
     }
 
     return Row(children: toggles);
